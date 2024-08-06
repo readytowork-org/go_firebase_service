@@ -1,4 +1,4 @@
-module github.com/readytowork-org/firebase-service
+module github.com/readytowork-org/go-firebase-service
 
 go 1.22.0
 
