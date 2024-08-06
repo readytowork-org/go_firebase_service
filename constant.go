@@ -1,4 +1,4 @@
-package firebase_service
+package go_firebase_service
 
 // Claim custom token claims
 type Claim string
