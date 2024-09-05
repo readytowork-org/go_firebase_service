@@ -59,8 +59,10 @@ func NewFirebaseAuthService(config AuthConfig) AuthService {
 
 // Create creates a new user with email and password
 func (fb *AuthService) Create(
-	userRequest AuthUser, setClaims ...func(claims claimsMap) claimsMap) (
-	string, *AuthErrorResponse) {
+	userRequest AuthUser, setClaims ...func(claims claimsMap) claimsMap,
+) (
+	string, *AuthErrorResponse,
+) {
 
 	params := (&auth.UserToCreate{}).
 		Email(userRequest.Email).
@@ -104,20 +106,24 @@ func (fb *AuthService) Create(
 
 // CreateUser creates a new user with email and password
 func (fb *AuthService) CreateUser(userRequest AuthUser) (string, *AuthErrorResponse) {
-	return fb.Create(userRequest, func(claims claimsMap) claimsMap {
-		claims[Claims.UserId.Name()] = userRequest.UserID
-		return claims
-	})
+	return fb.Create(
+		userRequest, func(claims claimsMap) claimsMap {
+			claims[Claims.UserId.Name()] = userRequest.UserID
+			return claims
+		},
+	)
 }
 
 // CreateAdmin creates a new admin with email and password
 func (fb *AuthService) CreateAdmin(userRequest AuthUser) (string, *AuthErrorResponse) {
-	return fb.Create(userRequest, func(claims claimsMap) claimsMap {
-		if userRequest.Role != "admin" {
-			claims[Claims.AdminId.ToString()] = userRequest.AdminID
-		}
-		return claims
-	})
+	return fb.Create(
+		userRequest, func(claims claimsMap) claimsMap {
+			if userRequest.Role != "admin" {
+				claims[Claims.AdminId.ToString()] = userRequest.AdminID
+			}
+			return claims
+		},
+	)
 }
 
 // VerifyToken verify passed firebase id token

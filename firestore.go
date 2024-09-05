@@ -1,8 +1,9 @@
 package go_firebase_service
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
+
+	"cloud.google.com/go/firestore"
 	"firebase.google.com/go"
 )
 
