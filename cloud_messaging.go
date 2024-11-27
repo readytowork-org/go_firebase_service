@@ -12,8 +12,8 @@ type loggerCMClient interface {
 }
 
 type CMClientConfig struct {
-	logger loggerCMClient
-	app    *firebase.App
+	Logger loggerCMClient
+	App    *firebase.App
 }
 
 type CMClientService struct {
@@ -23,9 +23,9 @@ type CMClientService struct {
 // NewFirebaseCMClient creates new firebase cloud messaging client
 func NewFirebaseCMClient(config CMClientConfig) CMClientService {
 	ctx := context.Background()
-	messagingClient, err := config.app.Messaging(ctx)
+	messagingClient, err := config.App.Messaging(ctx)
 	if err != nil {
-		config.logger.Fatalf("Firebase messaing: %v", err)
+		config.Logger.Fatalf("Firebase messaing: %v", err)
 	}
 	return CMClientService{
 		Client: messagingClient,

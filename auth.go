@@ -25,8 +25,8 @@ type authConfigLogger interface {
 }
 
 type AuthConfig struct {
-	logger authConfigLogger
-	app    *firebase.App
+	Logger authConfigLogger
+	App    *firebase.App
 }
 
 // AuthService structure
@@ -47,9 +47,9 @@ func NewFirebaseAuthService(config AuthConfig) AuthService {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	firebaseAuth, err := config.app.Auth(ctx)
+	firebaseAuth, err := config.App.Auth(ctx)
 	if err != nil {
-		config.logger.Fatalf("Firebase Authentication: %v", err)
+		config.Logger.Fatalf("Firebase Authentication: %v", err)
 	}
 
 	return AuthService{

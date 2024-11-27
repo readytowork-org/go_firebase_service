@@ -14,8 +14,8 @@ type appConfigLogger interface {
 
 // AppConfig structure
 type AppConfig struct {
-	logger appConfigLogger
-	opt    *option.ClientOption
+	Logger  appConfigLogger
+	Options *option.ClientOption
 }
 
 // AppService structure
@@ -23,14 +23,14 @@ type AppService struct {
 	*firebase.App
 }
 
-// NewFirebaseApp creates new firebase app instance
+// NewFirebaseApp creates new firebase App instance
 func NewFirebaseApp(config AppConfig) AppService {
-	app, err := firebase.NewApp(context.Background(), nil, *config.opt)
+	app, err := firebase.NewApp(context.Background(), nil, *config.Options)
 	if err != nil {
-		config.logger.Fatalf("Firebase NewApp: %v", err)
+		config.Logger.Fatalf("Firebase NewApp: %v", err)
 	}
 
-	config.logger.Info("✅ Firebase app initialized.")
+	config.Logger.Info("✅ Firebase App initialized.")
 	return AppService{
 		App: app,
 	}

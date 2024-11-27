@@ -12,8 +12,8 @@ type storeClientLogger interface {
 }
 
 type StoreClientConfig struct {
-	logger storeClientLogger
-	app    *firebase.App
+	Logger storeClientLogger
+	App    *firebase.App
 }
 
 type StoreClientService struct {
@@ -25,9 +25,9 @@ func NewFireStoreClient(config StoreClientConfig) StoreClientService {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	firestoreClient, err := config.app.Firestore(ctx)
+	firestoreClient, err := config.App.Firestore(ctx)
 	if err != nil {
-		config.logger.Fatalf("Firestore client: %v", err)
+		config.Logger.Fatalf("Firestore client: %v", err)
 	}
 
 	return StoreClientService{Client: firestoreClient}
