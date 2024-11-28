@@ -74,7 +74,6 @@ func (fb *AuthService) Create(
 
 	u, err := fb.Client.CreateUser(context.Background(), params)
 	if err != nil {
-		errMsg := fmt.Sprintf("Failed to create %s", userRequest.Role)
 		if strings.Contains(err.Error(), "EMAIL_EXISTS") {
 			errMessage := fmt.Sprintf("%s with this email already exits in Firebase", userRequest.Role)
 			return "", &AuthErrorResponse{
@@ -82,6 +81,7 @@ func (fb *AuthService) Create(
 				Message:   errMessage,
 			}
 		}
+		errMsg := fmt.Sprintf("Failed to create %v\n Error :: %v", userRequest, err.Error())
 		return "", &AuthErrorResponse{
 			ErrorType: http.StatusInternalServerError,
 			Message:   errMsg,
@@ -140,9 +140,12 @@ func (fb *AuthService) VerifyToken(idToken string) (*auth.Token, *AuthErrorRespo
 // SetClaim set's claim to firebase user
 func (fb *AuthService) SetClaim(uid string, claims map[string]interface{}) *AuthErrorResponse {
 	err := fb.SetCustomUserClaims(context.Background(), uid, claims)
-	return &AuthErrorResponse{
-		Message: err.Error(),
+	if err != nil {
+		return &AuthErrorResponse{
+			Message: err.Error(),
+		}
 	}
+	return nil
 }
 
 // UpdateEmailVerification update firebase user email verify
@@ -150,9 +153,12 @@ func (fb *AuthService) UpdateEmailVerification(uid string) *AuthErrorResponse {
 	params := (&auth.UserToUpdate{}).
 		EmailVerified(true)
 	_, err := fb.UpdateUser(context.Background(), uid, params)
-	return &AuthErrorResponse{
-		Message: err.Error(),
+	if err != nil {
+		return &AuthErrorResponse{
+			Message: err.Error(),
+		}
 	}
+	return nil
 }
 
 // DisableUser true for disabled; false for enabled.
@@ -160,9 +166,12 @@ func (fb *AuthService) DisableUser(uid string, disable bool) *AuthErrorResponse 
 	params := (&auth.UserToUpdate{}).
 		Disabled(disable)
 	_, err := fb.UpdateUser(context.Background(), uid, params)
-	return &AuthErrorResponse{
-		Message: err.Error(),
+	if err != nil {
+		return &AuthErrorResponse{
+			Message: err.Error(),
+		}
 	}
+	return nil
 }
 
 // UpdateFirebaseAdmin handles the common operation to update admin in Firebase for OneStore Admin and Admin
