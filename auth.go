@@ -39,11 +39,12 @@ type IAuthService interface {
 	DisableUser(uid string, disable bool) *AuthErrorResponse
 	UpdateFirebaseAdmin(UID string, newUserData, oldUserData AuthUser) *AuthErrorResponse
 	CreateCustomToken(ctx context.Context, uid string) (string, *AuthErrorResponse)
+	GetClient() *auth.Client
 }
 
 // AuthService structure
 type AuthService struct {
-	*auth.Client
+	Client *auth.Client
 }
 
 // AuthErrorResponse structure
@@ -138,7 +139,7 @@ func (fb *AuthService) CreateAdmin(userRequest AuthUser) (string, *AuthErrorResp
 
 // VerifyToken verify passed firebase id token
 func (fb *AuthService) VerifyToken(idToken string) (*auth.Token, *AuthErrorResponse) {
-	token, err := fb.VerifyIDToken(context.Background(), idToken)
+	token, err := fb.Client.VerifyIDToken(context.Background(), idToken)
 	if err != nil {
 		return nil, &AuthErrorResponse{
 			Message: err.Error(),
@@ -149,7 +150,7 @@ func (fb *AuthService) VerifyToken(idToken string) (*auth.Token, *AuthErrorRespo
 
 // SetClaim set's claim to firebase user
 func (fb *AuthService) SetClaim(uid string, claims map[string]interface{}) *AuthErrorResponse {
-	err := fb.SetCustomUserClaims(context.Background(), uid, claims)
+	err := fb.Client.SetCustomUserClaims(context.Background(), uid, claims)
 	if err != nil {
 		return &AuthErrorResponse{
 			Message: err.Error(),
@@ -162,7 +163,7 @@ func (fb *AuthService) SetClaim(uid string, claims map[string]interface{}) *Auth
 func (fb *AuthService) UpdateEmailVerification(uid string) *AuthErrorResponse {
 	params := (&auth.UserToUpdate{}).
 		EmailVerified(true)
-	_, err := fb.UpdateUser(context.Background(), uid, params)
+	_, err := fb.Client.UpdateUser(context.Background(), uid, params)
 	if err != nil {
 		return &AuthErrorResponse{
 			Message: err.Error(),
@@ -175,7 +176,7 @@ func (fb *AuthService) UpdateEmailVerification(uid string) *AuthErrorResponse {
 func (fb *AuthService) DisableUser(uid string, disable bool) *AuthErrorResponse {
 	params := (&auth.UserToUpdate{}).
 		Disabled(disable)
-	_, err := fb.UpdateUser(context.Background(), uid, params)
+	_, err := fb.Client.UpdateUser(context.Background(), uid, params)
 	if err != nil {
 		return &AuthErrorResponse{
 			Message: err.Error(),
@@ -201,7 +202,7 @@ func (fb *AuthService) UpdateFirebaseAdmin(UID string, newUserData, oldUserData 
 	}
 
 	if fbAdmin != nil {
-		if _, err := fb.UpdateUser(context.Background(), UID, fbAdmin); err != nil {
+		if _, err := fb.Client.UpdateUser(context.Background(), UID, fbAdmin); err != nil {
 			return &AuthErrorResponse{
 				Message: err.Error(),
 			}
@@ -211,11 +212,15 @@ func (fb *AuthService) UpdateFirebaseAdmin(UID string, newUserData, oldUserData 
 }
 
 func (fb *AuthService) CreateCustomToken(ctx context.Context, uid string) (string, *AuthErrorResponse) {
-	token, err := fb.CustomToken(ctx, uid)
+	token, err := fb.Client.CustomToken(ctx, uid)
 	if err != nil {
 		return "", &AuthErrorResponse{
 			Message: err.Error(),
 		}
 	}
 	return token, nil
+}
+
+func (fb *AuthService) GetClient() *auth.Client {
+	return fb.Client
 }
