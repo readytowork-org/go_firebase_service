@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"firebase.google.com/go"
-
 	"firebase.google.com/go/auth"
 )
 
@@ -29,6 +28,19 @@ type AuthConfig struct {
 	App    *firebase.App
 }
 
+// IAuthService interface
+type IAuthService interface {
+	Create(userRequest AuthUser, setClaims ...func(claims claimsMap) claimsMap) (string, *AuthErrorResponse)
+	CreateUser(userRequest AuthUser) (string, *AuthErrorResponse)
+	CreateAdmin(userRequest AuthUser) (string, *AuthErrorResponse)
+	VerifyToken(idToken string) (*auth.Token, *AuthErrorResponse)
+	SetClaim(uid string, claims map[string]interface{}) *AuthErrorResponse
+	UpdateEmailVerification(uid string) *AuthErrorResponse
+	DisableUser(uid string, disable bool) *AuthErrorResponse
+	UpdateFirebaseAdmin(UID string, newUserData, oldUserData AuthUser) *AuthErrorResponse
+	CreateCustomToken(ctx context.Context, uid string) (string, *AuthErrorResponse)
+}
+
 // AuthService structure
 type AuthService struct {
 	*auth.Client
@@ -43,7 +55,7 @@ type AuthErrorResponse struct {
 type claimsMap map[string]interface{}
 
 // NewFirebaseAuthService creates new firebase service
-func NewFirebaseAuthService(config AuthConfig) AuthService {
+func NewFirebaseAuthService(config AuthConfig) IAuthService {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -52,15 +64,13 @@ func NewFirebaseAuthService(config AuthConfig) AuthService {
 		config.Logger.Fatalf("Firebase Authentication: %v", err)
 	}
 
-	return AuthService{
+	return &AuthService{
 		Client: firebaseAuth,
 	}
 }
 
 // Create creates a new user with email and password
-func (fb *AuthService) Create(
-	userRequest AuthUser, setClaims ...func(claims claimsMap) claimsMap,
-) (
+func (fb *AuthService) Create(userRequest AuthUser, setClaims ...func(claims claimsMap) claimsMap) (
 	string, *AuthErrorResponse,
 ) {
 
